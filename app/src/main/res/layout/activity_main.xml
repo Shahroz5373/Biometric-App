@@ -16,6 +16,7 @@
         android:textSize="25sp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
+        android:textColor="@color/black"
         android:layout_marginBottom="20dp"/>
 
     <Button
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:text="Verify"
         android:textColor="@color/white"
+        android:backgroundTint="#3A7BD5"
         android:textSize="28sp"
         android:layout_centerInParent="true" />
 
