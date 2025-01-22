@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -29,51 +30,56 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Button btn=findViewById(R.id.btn);
+        Button btn = findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //create biometric prompt
                 BiometricPrompt biometricPrompt = getPrompt();
 
-                BiometricPrompt.PromptInfo promptInfo= new BiometricPrompt.PromptInfo.Builder()
+                //configure biometric prompt with title, description and negative button
+                BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
                         .setTitle("Please Verify")
                         .setDescription("Authentication is required to proceed")
                         .setNegativeButtonText("Cancel")
+                        //only gets biometric authentication
+                        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                         .build();
                 biometricPrompt.authenticate(promptInfo);
             }
         });
 
     }
-    private BiometricPrompt getPrompt(){
-        Executor executor= ContextCompat.getMainExecutor(this);
-        BiometricPrompt.AuthenticationCallback callback = new
-                BiometricPrompt.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                        super.onAuthenticationError(errorCode, errString);
-                        notifyUser(errString.toString());
-                    }
+    //function to create biometric prompt
+    private BiometricPrompt getPrompt() {
+        Executor executor = ContextCompat.getMainExecutor(this); //executes biometric prompt
+        BiometricPrompt.AuthenticationCallback callback = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                notifyUser(errString.toString());//authentication error message
+            }
 
-                    @Override
-                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                        super.onAuthenticationSucceeded(result);
-                        notifyUser("Authentication successful");
-                        Intent intent=new Intent(MainActivity.this,SecretActivity.class);
-                        startActivity(intent);
-                    }
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                notifyUser("Authentication successful");//authentication successful message
+                startActivity(new Intent(MainActivity.this, SecretActivity.class));
+            }
 
-                    @Override
-                    public void onAuthenticationFailed() {
-                        super.onAuthenticationFailed();
-                        notifyUser("Authentication Failed");
-                    }
-                };
-         return new BiometricPrompt(this,executor,callback);
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                notifyUser("Authentication Failed");//authentication failed message
+            }
+        };
+        //returns BiometricPrompt instance
+        return new BiometricPrompt(this, executor, callback);
     }
-    private void notifyUser(String message){
+
+    //function to show toast message
+    private void notifyUser(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
 
 }
